@@ -1,9 +1,20 @@
+require 'rubygems'
+require 'bundler/setup'
 require 'tweetstream'
 
-TweetStream.configure do |config|
-  config.consumer_key       = '1SlFlzJzjwFb8Hu0Xg7gQ'
-  config.consumer_secret    = 'd98spifmqqD4PDC9A228jH6qfNDNmxPrhaM7eEdR7A8'
-  config.oauth_token        = '5939272-q771BC0UaTMTKUICrBRn5ueJOwvxvuENox1YyEqoyM'
-  config.oauth_token_secret = 'CzZYGuU1xwOROkYT8X2v3rlpLjaNZFJHRFjQDXQp5w'
-  config.auth_method        = :oauth
+# need to stop pidfile creation on heroku (read only file-system)
+class TweetStream::Daemon
+  def start(path, query_parameters = {}, &block) #:nodoc:
+    # Because of a change in Ruvy 1.8.7 patchlevel 249, you cannot call anymore
+    # super inside a block. So I assign to a variable the base class method before
+    # the Daemons block begins.
+    startmethod = super.start
+    Daemons.run_proc(@app_name || 'tweetstream', :multiple => true, :no_pidfiles => true) do
+      startmethod(path, query_parameters, &block)
+    end
+  end
+end
+
+TweetStream::Daemon.new('dariusdarius', 'soulja39').track('OH', 'twitpic', 'http') do |status|
+  puts status.text
 end
