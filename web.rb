@@ -1,1 +1,5 @@
-puts "hello"
+require 'sinatra'
+
+get '/' do
+  "Hello, world"
+end
