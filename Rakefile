@@ -9,7 +9,6 @@ require File.dirname(__FILE__) + "/twitterbot/push_tweet"
 
 STDOUT.sync = true
 
-
 #-- Stream search results from twitter --#
 
 task "tweetstream:stream" do
@@ -30,5 +29,18 @@ task "tweetstream:stream" do
       :status => status.text
     }
     Resque.enqueue(PushTweet, tweet)
+  end
+end
+
+namespace :queue do
+
+  task :environment do
+    require File.dirname(__FILE__) + "/config/resque"
+  end
+
+  task :clear do
+    [:tweets_queue].each do |name|
+      Resque.redis.del "queue:#{name}"
+    end
   end
 end
