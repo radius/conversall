@@ -25,7 +25,10 @@ task "tweetstream:stream" do
 
   # Use 'track' to track a list of single-word keywords
   TweetStream::Client.new.track('WorldSeries') do |status|
-    puts "#{status.text}"
-    Resque.enqueue(PushTweet, status)
+    puts "QUEUING: #{status.text}"
+    tweet = {
+      :status => status.text
+    }
+    Resque.enqueue(PushTweet, tweet)
   end
 end
