@@ -6,6 +6,7 @@ require "resque"
 require "resque/tasks"
 
 require File.dirname(__FILE__) + "/twitterbot/push_tweet"
+require File.dirname(__FILE__) + "/config/resque"
 
 STDOUT.sync = true
 
@@ -35,6 +36,7 @@ end
 namespace :queue do
 
   task :environment do
+    puts "doing env thing"
     require File.dirname(__FILE__) + "/config/resque"
   end
 
