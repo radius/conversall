@@ -36,7 +36,7 @@ namespace :queue do
 
   task :environment do
     puts "doing env thing"
-    if(!ENV['REDISTOGO_URL'].nil?)
+    if(ENV.has_key?('REDISTOGO_URL'))
       require File.dirname(__FILE__) + "/config/resque"
     end
   end
