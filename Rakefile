@@ -6,13 +6,12 @@ require "resque"
 require "resque/tasks"
 
 require File.dirname(__FILE__) + "/twitterbot/push_tweet"
-require File.dirname(__FILE__) + "/config/resque"
 
 STDOUT.sync = true
 
 #-- Stream search results from twitter --#
 
-task "tweetstream:stream" do
+task "tweetstream:stream" => "queue:environment" do
   puts "hi"
   
   TweetStream.configure do |config|
@@ -37,7 +36,9 @@ namespace :queue do
 
   task :environment do
     puts "doing env thing"
-    require File.dirname(__FILE__) + "/config/resque"
+    if(ENV['REDISTOGO_URL'])
+      require File.dirname(__FILE__) + "/config/resque"
+    end
   end
 
   task :clear do
