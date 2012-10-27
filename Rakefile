@@ -28,7 +28,7 @@ task "tweetstream:stream" => "queue:environment" do
     tweet = {
       :status => status.text
     }
-#    Resque.enqueue(PushTweet, tweet)
+    Resque.enqueue(PushTweet, tweet)
   end
 end
 
