@@ -28,7 +28,7 @@ task "tweetstream:stream" => "queue:environment" do
     tweet = {
       :status => status.text
     }
-    Resque.enqueue(PushTweet, tweet)
+#    Resque.enqueue(PushTweet, tweet)
   end
 end
 
@@ -36,6 +36,7 @@ namespace :queue do
 
   task :environment do
     puts "doing env thing"
+    p ENV
     if(ENV['REDISTOGO_URL'])
       require File.dirname(__FILE__) + "/config/resque"
     end
