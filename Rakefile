@@ -38,6 +38,7 @@ namespace :queue do
     puts "doing env thing"
     p ENV
     if(ENV['REDISTOGO_URL'])
+      puts 'loading resque config'
       require File.dirname(__FILE__) + "/config/resque"
     end
   end
