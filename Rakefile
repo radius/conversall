@@ -36,7 +36,6 @@ namespace :queue do
 
   task :environment do
     puts "doing env thing"
-    p ENV
     if(ENV['REDISTOGO_URL'])
       puts 'loading resque config'
       require File.dirname(__FILE__) + "/config/resque"
@@ -46,6 +45,16 @@ namespace :queue do
   task :clear do
     [:tweets_queue].each do |name|
       Resque.redis.del "queue:#{name}"
+    end
+  end
+end
+
+namespace :resque do
+
+  task :setup => "queue:environment" do
+    if(ENV['REDISTOGO_URL'])
+      puts 'loading resque config'
+      require File.dirname(__FILE__) + "/config/resque"
     end
   end
 end
