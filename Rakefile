@@ -1,3 +1,8 @@
+#!/usr/bin/env rake
+# Add your own tasks in files placed in lib/tasks ending in .rake,
+# for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
+
+require File.expand_path('../config/application', __FILE__)
 require "rubygems"
 require "bundler/setup"
 
@@ -5,13 +10,16 @@ require "tweetstream"
 require "resque"
 require "resque/tasks"
 
+CampaignManager::Application.load_tasks
+
 require File.dirname(__FILE__) + "/twitterbot/push_tweet"
 
 STDOUT.sync = true
 
+
 #-- Stream search results from twitter --#
 
-task "tweetstream:stream" => "queue:environment" do
+task "tweetstream:stream" => :environment do
   puts "hi"
   
   TweetStream.configure do |config|
@@ -23,10 +31,18 @@ task "tweetstream:stream" => "queue:environment" do
   end
 
   # Use 'track' to track a list of single-word keywords
-  TweetStream::Client.new.track('WorldSeries') do |status|
+  tags = Trigger.select('hashtag').where({:active => true}).map! do |i| 
+    i.hashtag
+  end
+  p tags
+  TweetStream::Client.new.track('cnvrsltest') do |status|
     puts "QUEUING: #{status.text}"
+    p status
     tweet = {
-      :status => status.text
+      :id_str => status.id_str,
+      :handle => status.user.screen_name,
+      :status => status.text,
+      :followers_count => status.followers_count
     }
     Resque.enqueue(PushTweet, tweet)
   end
@@ -34,7 +50,7 @@ end
 
 namespace :queue do
 
-  task :environment do
+  task :environment => :environment do
     puts "doing env thing"
     if(ENV['REDISTOGO_URL'])
       puts 'loading resque config'
@@ -51,7 +67,7 @@ end
 
 namespace :resque do
 
-  task :setup => "queue:environment" do
+  task :setup => :environment do
     if(ENV['REDISTOGO_URL'])
       puts 'loading resque config'
       require File.dirname(__FILE__) + "/config/resque"
