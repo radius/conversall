@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  campaign_id: 1
+  hashtag: MyString
+  active: false
+
+two:
+  campaign_id: 1
+  hashtag: MyString
+  active: false

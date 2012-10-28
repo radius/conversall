@@ -1,0 +1,26 @@
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Brand</th>
+    <th>Twitter Account</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+ 
+<% @campaigns.each do |campaign| %>
+  <tr>
+    <td><%= campaign.id %></td>
+    <td><%= campaign.brand.name %></td>
+    <td><%= campaign.twitter_account.id %></td>
+    <td><%= link_to 'Show', campaign %></td>
+    <td><%= link_to 'Edit', edit_campaign_path(campaign) %></td>
+    <td><%= link_to 'Destroy', campaign, :confirm => 'Are you sure?',
+                                     :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+ 
+<br />
+ 
+<%= link_to 'New campaign', new_campaign_path %>

@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  trigger_id: 1
+  value: MyString
+  sent: false
+  sent_to: MyString
+  delivered: false
+
+two:
+  trigger_id: 1
+  value: MyString
+  sent: false
+  sent_to: MyString
+  delivered: false
