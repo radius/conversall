@@ -37,12 +37,11 @@ task "tweetstream:stream" => :environment do
   p tags
   TweetStream::Client.new.track('cnvrsltest') do |status|
     puts "QUEUING: #{status.text}"
-    p status
     tweet = {
-      :id_str => status.id_str,
+      :id => status.id,
       :handle => status.user.screen_name,
       :status => status.text,
-      :followers_count => status.followers_count
+      :followers_count => status.user.followers_count
     }
     Resque.enqueue(PushTweet, tweet)
   end
