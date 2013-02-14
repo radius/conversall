@@ -212,4 +212,5 @@ DEPENDENCIES
   sqlite3
   thin
   tweetstream
+  twitter
   uglifier (>= 1.0.3)

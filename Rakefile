@@ -21,31 +21,54 @@ STDOUT.sync = true
 
 task "tweetstream:stream" => :environment do
   puts "hi"
-  
-  TweetStream.configure do |config|
-    config.consumer_key       = '1SlFlzJzjwFb8Hu0Xg7gQ'
-    config.consumer_secret    = 'd98spifmqqD4PDC9A228jH6qfNDNmxPrhaM7eEdR7A8'
-    config.oauth_token        = '5939272-q771BC0UaTMTKUICrBRn5ueJOwvxvuENox1YyEqoyM'
-    config.oauth_token_secret = 'CzZYGuU1xwOROkYT8X2v3rlpLjaNZFJHRFjQDXQp5w'
-    config.auth_method        = :oauth
-  end
 
-  # Use 'track' to track a list of single-word keywords
-  tags = Trigger.select('hashtag').where({:active => true}).map! do |i| 
-    i.hashtag
-  end
-  p tags
-  TweetStream::Client.new.track('cnvrsltest') do |status|
-    puts "QUEUING: #{status.text}"
-    tweet = {
-      :id => status.id,
-      :handle => status.user.screen_name,
-      :status => status.text,
-      :followers_count => status.user.followers_count
-    }
-    Resque.enqueue(PushTweet, tweet)
+  while true
+    #loop forever. client will stop if new tags come it
+    EM.run do
+      puts "top of EM loop"
+
+      EM::PeriodicTimer.new(60) do
+        puts "check for reset"
+        if @client
+          # check to see if we need to reset?
+          @client.stop
+        end
+      end
+
+      TweetStream.configure do |config|
+        config.consumer_key       = '1SlFlzJzjwFb8Hu0Xg7gQ'
+        config.consumer_secret    = 'd98spifmqqD4PDC9A228jH6qfNDNmxPrhaM7eEdR7A8'
+        config.oauth_token        = '5939272-q771BC0UaTMTKUICrBRn5ueJOwvxvuENox1YyEqoyM'
+        config.oauth_token_secret = 'CzZYGuU1xwOROkYT8X2v3rlpLjaNZFJHRFjQDXQp5w'
+        config.auth_method        = :oauth
+      end
+
+      @client = TweetStream::Client.new
+
+      @client.on_error do |error|
+        puts error
+      end
+
+      # Use 'track' to track a list of single-word keywords
+      tags = Trigger.select('hashtag').where({:active => true}).map{|i| "#" + i.hashtag}
+
+      puts "tracking #{tags}"
+      @client.track(tags) do |status|
+        puts "QUEUING: #{status.text}"
+        hashtags = status.hashtags.each {|h| h.to_hash[:text] }
+        tweet = {
+            :id => status.id,
+            :handle => status.user.screen_name,
+            :status => status.text,
+            :followers_count => status.user.followers_count,
+            :hashtags => hashtags
+        }
+        Resque.enqueue(PushTweet, tweet)
+      end
+    end
   end
 end
+
 
 namespace :queue do
 
