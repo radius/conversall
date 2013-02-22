@@ -55,7 +55,7 @@ task "tweetstream:stream" => :environment do
       puts "tracking #{tags}"
       @client.track(tags) do |status|
         puts "QUEUING: #{status.text}"
-        hashtags = status.hashtags.each {|h| h.to_hash[:text] }
+        hashtags = status.hashtags.map {|h| h.to_hash[:text] }
         tweet = {
             :id => status.id,
             :handle => status.user.screen_name,
